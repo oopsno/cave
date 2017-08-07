@@ -1,4 +1,5 @@
-#include <utility>
+#include <algorithm>
+
 #include "objects.hpp"
 
 namespace cave {
@@ -19,8 +20,14 @@ Point::Point(float x, float y) : x{x}, y{y} {}
 
 Polygon::Polygon(const json &polygon) {
   assert(polygon.is_array() and polygon.size() % 2 == 0);
+  x_min = y_min = std::numeric_limits<float>::min();
+  x_max = y_max = std::numeric_limits<float>::max();
   for (auto i = 0; i < polygon.size(); i += 2) {
     vertexs.emplace_back(polygon[i], polygon[i + 1]);
+    x_min = std::min(x_min, polygon[i].get<float>());
+    x_max = std::max(x_max, polygon[i].get<float>());
+    y_min = std::min(y_min, polygon[i + 1].get<float>());
+    y_max = std::max(y_max, polygon[i + 1].get<float>());
   }
 }
 

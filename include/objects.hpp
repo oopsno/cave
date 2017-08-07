@@ -20,7 +20,7 @@ struct Point {
 struct Polygon {
   Polygon(const json &polygon);
   std::vector<Point> vertexs;
-  float 
+  float x_min, x_max, y_min, y_max;
 };
 
 struct Box {
