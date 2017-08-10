@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include "json.hpp"
 
 using json = nlohmann::json;
@@ -9,7 +10,14 @@ namespace cave {
 
 struct RLE {
   RLE(const json &rle);
-  explicit RLE();
+  uint64_t height, width, m;
+  std::unique_ptr<uint32_t> counts;
+};
+
+struct Mask {
+  Mask(size_t height, size_t width);
+  size_t height, width;
+  std::unique_ptr<uint8_t> mask;
 };
 
 struct Point {
@@ -23,6 +31,8 @@ struct Polygon {
   float x_min, x_max, y_min, y_max;
 };
 
+using Polygons = std::vector<Polygon>;
+
 struct Box {
   Box(const json &array);
   float x, y, width, height;
@@ -30,8 +40,8 @@ struct Box {
 
 struct Segmentation {
   Segmentation(const json &what);
-  RLE rle;
-  std::vector<Polygon> polygons;
+  std::unique_ptr<RLE> rle;
+  std::unique_ptr<Polygons> polygons;
 };
 
 struct Annotation {

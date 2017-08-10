@@ -12,9 +12,21 @@ Box::Box(const json &array) {
   height = array[3];
 }
 
-RLE::RLE(const json &rle) {}
+Mask::Mask(size_t height, size_t width) : height{height},
+                                          width{width},
+                                          mask{std::make_unique<uint8_t>(height * width)} {}
 
-RLE::RLE() {}
+RLE::RLE(const json &rle) {
+  const auto &size = rle["size"];
+  height = size[0];
+  width = size[1];
+  const auto &cnts = rle["counts"];
+  const size_t counts_length = cnts.size();
+  counts = std::make_unique<uint32_t>(counts_length);
+  for (auto i = 0; i < counts_length; ++i) {
+    counts.get()[i] = cnts[i].get<uint32_t>();
+  }
+}
 
 Point::Point(float x, float y) : x{x}, y{y} {}
 
@@ -32,10 +44,12 @@ Polygon::Polygon(const json &polygon) {
 }
 
 Segmentation::Segmentation(const json &what) {
-  if (what.is_object()) { // RLE
-  } else if (what.is_array()) { // Polgons
+  if (what.is_object()) {
+    rle = std::make_unique<RLE>(what);// RLE
+  } else if (what.is_array()) { // Polygons
+    polygons = std::make_unique<Polygons>();
     for (const auto &poly : what) {
-      polygons.emplace_back(poly);
+      polygons->emplace_back(poly);
     }
   }
 }
